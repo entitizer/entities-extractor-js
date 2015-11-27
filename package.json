@@ -1,0 +1,35 @@
+{
+  "name": "entitizer.entities-extractor",
+  "version": "0.0.1",
+  "description": "Entities extracting from text",
+  "main": "./lib/extractor.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/entitizer/entities-extractor-js.git"
+  },
+  "keywords": [
+    "entitizer",
+    "entities-extractor",
+    "extractor",
+    "entities"
+  ],
+  "author": "Dumitru Cantea",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/entitizer/entities-extractor-js/issues"
+  },
+  "homepage": "https://github.com/entitizer/entities-extractor-js",
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "concepts-parser": "^0.0.4",
+    "entitizer.entities-storage": "^0.1.0",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "dotenv": "^1.2.0",
+    "mocha": "^2.3.4"
+  }
+}
