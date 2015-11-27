@@ -46,9 +46,15 @@ describe('Extractor', function() {
 		return Promise.each(entities, function(entity) {
 			return controlService.createEntity(entity)
 				.then(function(dbEntity) {
-					return Promise.each(dbEntity.names, function(name) {
+					var names = entity.names || [];
+					names.push({
+						name: entity.name
+					});
+					return Promise.each(names, function(name) {
 						name.entityId = dbEntity.id;
-						return controlService.createNameKey(name);
+						name.lang = entity.lang;
+						name.country = entity.country;
+						return controlService.createEntityName(name);
 					});
 				});
 		});
