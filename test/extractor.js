@@ -79,14 +79,15 @@ describe('Extractor', function() {
 	});
 
 	it('#entities', function() {
-		return extractor.entities(context)
-			.then(function(entities) {
-				assert.ok(entities);
-				assert.equal(3, entities.length);
-				var dodon = _.find(entities, {
-					name: 'Igor Dodon'
-				});
-				assert.equal(2, dodon.concepts.length);
+		return extractor.extract(context).then(function(result) {
+			var entities = extractor.entities(result);
+
+			assert.ok(entities);
+			assert.equal(3, entities.length);
+			var dodon = _.find(entities, {
+				name: 'Igor Dodon'
 			});
+			assert.equal(2, dodon.concepts.length);
+		});
 	});
 });
