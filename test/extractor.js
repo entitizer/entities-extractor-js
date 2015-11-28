@@ -58,9 +58,7 @@ describe('Extractor', function() {
 						name: entity.name
 					});
 					return Promise.each(names, function(name) {
-						name.entityId = dbEntity.id;
-						name.lang = entity.lang;
-						name.country = entity.country;
+						name.entity = dbEntity;
 						return controlService.createEntityName(name);
 					});
 				});
