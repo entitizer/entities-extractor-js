@@ -21,6 +21,7 @@ describe('Extractor', function() {
 			name: 'Moldova',
 			lang: 'ro',
 			country: 'md',
+			abbr: 'RM',
 			names: [{
 				name: 'R. Moldova'
 			}, {
@@ -41,6 +42,12 @@ describe('Extractor', function() {
 			lang: 'ro',
 			country: 'md',
 			type: 'person'
+		}, {
+			id: 4,
+			name: 'Uniunea Europeana',
+			abbr: 'UE',
+			lang: 'ro',
+			country: 'md'
 		}];
 
 		return Promise.each(entities, function(entity) {
@@ -57,7 +64,7 @@ describe('Extractor', function() {
 						return controlService.createEntityName(name);
 					});
 				});
-		});
+		}).delay(1000 * 2);
 	}
 
 	before('createTables', function() {
@@ -74,26 +81,31 @@ describe('Extractor', function() {
 	var context = {
 		lang: 'ro',
 		country: 'md',
-		text: 'Vlad Filat este noul prim-ministru al R. Moldova. Partidul Socialistilor este condus de Dodon. Igor Dodon merge in Rusia.'
+		text: 'Vlad Filat este noul prim-ministru al R. Moldova. Partidul Socialistilor din Moldova este condus de Dodon. Igor Dodon merge in Rusia, RM iar Filat stie de Uniunea Europeana si vrea in UE. Premierul Vlad Filat merge la Moscova.'
 	};
 
 	it('#concepts', function() {
 		var concepts = extractor.concepts(context);
-		assert.equal(6, concepts.length);
+		// console.log('concepts', concepts);
+		assert.equal(12, concepts.length);
 		assert.equal('R. Moldova', concepts[1].value);
-		// console.log(concepts);
 	});
 
 	it('#entities', function() {
-		return extractor.extract(context).then(function(result) {
-			var entities = extractor.entities(result);
-
+		return extractor.extract(context).then(function(entities) {
 			assert.ok(entities);
-			assert.equal(3, entities.length);
+			// console.log('entities', entities);
+			assert.equal(4, entities.length);
 			var dodon = _.find(entities, {
 				name: 'Igor Dodon'
 			});
 			assert.equal(2, dodon.concepts.length);
+			// test split
+			var filat = _.find(entities, {
+				name: 'Vlad Filat'
+			});
+			assert.equal(3, filat.concepts.length);
+			assert.equal(2, filat.keys.length);
 		});
 	});
 });
