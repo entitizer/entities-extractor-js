@@ -6,10 +6,12 @@ if (!process.env.AWS_REGION) {
 	return;
 }
 
-var Extractor = require('../../lib/extractor');
+var extractor = require('../../lib/extractor');
 var storage = require('entitizer.entities-storage');
+var conceptsParser = require('concepts-parser');
 
-exports.extractor = new Extractor();
+exports.conceptsParser = conceptsParser;
+exports.extractor = extractor;
 exports.controlService = new storage.ControlService();
 exports.createTables = storage.createTables;
 exports.deleteTables = storage.deleteTables;

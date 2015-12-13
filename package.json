@@ -1,6 +1,6 @@
 {
   "name": "entitizer.entities-extractor",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Entities extracting from text",
   "main": "./lib/extractor.js",
   "scripts": {
@@ -24,8 +24,8 @@
   "homepage": "https://github.com/entitizer/entities-extractor-js",
   "dependencies": {
     "bluebird": "^3.0.5",
-    "concepts-parser": "^0.1.1",
-    "entitizer.entities-storage": "^0.1.4",
+    "concepts-parser": "^0.1.2",
+    "entitizer.entities-storage": "^0.1.5",
     "lodash": "^3.10.1"
   },
   "devDependencies": {

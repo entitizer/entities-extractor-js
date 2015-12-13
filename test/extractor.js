@@ -82,15 +82,15 @@ describe('Extractor', function() {
 		text: 'Vlad Filat este noul prim-ministru al R. Moldova. Partidul Socialistilor din Moldova este condus de Dodon. Igor Dodon merge in Rusia, RM iar Filat stie de Uniunea Europeana si vrea in UE. Premierul Vlad Filat merge la Moscova.'
 	};
 
-	it('#concepts', function() {
-		var concepts = extractor.concepts(context);
-		// console.log('concepts', concepts);
-		assert.equal(12, concepts.length);
-		assert.equal('R. Moldova', concepts[1].value);
-	});
+	// it('#concepts', function() {
+	// 	var concepts = extractor.concepts(context);
+	// 	// console.log('concepts', concepts);
+	// 	assert.equal(12, concepts.length);
+	// 	assert.equal('R. Moldova', concepts[1].value);
+	// });
 
-	it('#entities', function() {
-		return extractor.extract(context).then(function(entities) {
+	it('#fromContext', function() {
+		return extractor.fromContext(context).then(function(entities) {
 			assert.ok(entities);
 			// console.log('entities', entities);
 			assert.equal(4, entities.length);
@@ -105,5 +105,25 @@ describe('Extractor', function() {
 			assert.equal(3, filat.concepts.length);
 			assert.equal(2, filat.keys.length);
 		});
+	});
+
+	it('#fromConcepts', function() {
+		var concepts = Data.conceptsParser.parse(context);
+		return extractor.fromConcepts(context, concepts)
+			.then(function(entities) {
+				assert.ok(entities);
+				// console.log('entities', entities);
+				assert.equal(4, entities.length);
+				var dodon = _.find(entities, {
+					name: 'Igor Dodon'
+				});
+				assert.equal(2, dodon.concepts.length);
+				// test split
+				var filat = _.find(entities, {
+					name: 'Vlad Filat'
+				});
+				assert.equal(3, filat.concepts.length);
+				assert.equal(2, filat.keys.length);
+			});
 	});
 });
