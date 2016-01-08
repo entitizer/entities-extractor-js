@@ -21,12 +21,28 @@ describe('Extractor', function() {
 		text: 'Vlad Filat este noul prim-ministru al R. Moldova. Partidul Socialistilor din Moldova este condus de Dodon. Igor Dodon merge in Rusia, RM iar Filat stie de Uniunea Europeana si vrea in UE. Premierul Vlad Filat merge la Moscova.'
 	};
 
-	// it('#concepts', function() {
-	// 	var concepts = extractor.concepts(context);
-	// 	// console.log('concepts', concepts);
-	// 	assert.equal(12, concepts.length);
-	// 	assert.equal('R. Moldova', concepts[1].value);
-	// });
+	it('#fromContext ro', function() {
+		return extractor.fromContext({
+			lang: 'ro',
+			country: 'ro',
+			text: 'De Bobotează, la Uzina de Apă din Piatra Neamț, preoții au sfințit apa care ajunge în apartamentele Nemțenilor. Sfințirea apei a fost organizată de primăria orașului într-o acțiune care, spun ofcialii'
+		}).then(function(entities) {
+			assert.ok(entities);
+			// console.log(entities);
+		});
+	});
+
+	it('#fromContext split', function() {
+		return extractor.fromContext({
+			lang: 'ro',
+			country: 'ro',
+			text: 'Românca Cristina Neagu, cea mai bună handbalistă a lumii în anul 2015'
+		}).then(function(entities) {
+			assert.ok(entities);
+			// console.log(entities);
+			assert.equal('Cristina Neagu', entities[0].name);
+		});
+	});
 
 	it('#fromContext', function() {
 		return extractor.fromContext(context).then(function(entities) {
