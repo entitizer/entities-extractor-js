@@ -15,67 +15,6 @@ var _ = require('lodash');
 describe('Extractor', function() {
 	this.timeout(1000 * 60);
 
-	function createEntities() {
-		var entities = [{
-			id: 1,
-			name: 'Moldova',
-			lang: 'ro',
-			country: 'md',
-			abbr: 'RM',
-			names: [{
-				name: 'R. Moldova'
-			}, {
-				name: 'Republica Moldova'
-			}]
-		}, {
-			id: 2,
-			name: 'Vlad Filat',
-			lang: 'ro',
-			country: 'md',
-			type: 'person',
-			names: [{
-				name: 'V. Filat'
-			}]
-		}, {
-			id: 3,
-			name: 'Igor Dodon',
-			lang: 'ro',
-			country: 'md',
-			type: 'person'
-		}, {
-			id: 4,
-			name: 'Uniunea Europeana',
-			abbr: 'UE',
-			lang: 'ro',
-			country: 'md'
-		}];
-
-		return Promise.each(entities, function(entity) {
-			return controlService.createEntity(entity)
-				.then(function(dbEntity) {
-					var names = entity.names || [];
-					names.push({
-						name: entity.name
-					});
-					return Promise.each(names, function(name) {
-						name.entity = dbEntity;
-						return controlService.createEntityName(name);
-					});
-				});
-		}).delay(1000 * 2);
-	}
-
-	before('createTables', function() {
-		return Data.createTables().then(createEntities);
-	});
-
-	after('deleteTables', function() {
-		return Data.deleteTables('iam-sure')
-			.then(function() {
-				return Promise.delay(1000 * 5);
-			});
-	});
-
 	var context = {
 		lang: 'ro',
 		country: 'md',
@@ -93,7 +32,7 @@ describe('Extractor', function() {
 		return extractor.fromContext(context).then(function(entities) {
 			assert.ok(entities);
 			// console.log('entities', entities);
-			assert.equal(4, entities.length);
+			assert.equal(7, entities.length);
 			var dodon = _.find(entities, {
 				name: 'Igor Dodon'
 			});
@@ -107,13 +46,24 @@ describe('Extractor', function() {
 		});
 	});
 
+	it('#fromContext sort', function() {
+		return extractor.fromContext({
+			lang: 'ro',
+			country: 'md',
+			text: 'Comisia Europeană a adoptat o serie de programe de cooperare transfrontalieră, care au un buget total de un miliard de euro și sunt destinate să sprijine dezvoltarea socială și economică a regiunilor situate de ambele părți ale frontierelor externe ale UE.\n„Cooperarea transfrontalieră este esențială pentru evitarea creării unor noi linii de separare. Această nouă finanțare va contribui la o dezvoltare regională mai integrată și mai durabilă a regiunilor frontaliere învecinate și la o cooperare teritorială mai armonioasă în zona frontierelor externe ale UE”, a declarat Johannes Hahn, comisarul pentru politica europeană de vecinătate și negocieri privind extinderea, potrivit unui comunicat transmis joi de Reprezentanța CE la București, notează Agerpres.ro.\n„Sunt foarte mulțumită că Fondul European de Dezvoltare Regională poate contribui la apropierea UE de vecinii săi. Programele de cooperare transfrontalieră reprezintă exemple concrete ale modului în care UE acționează pentru a-i ajuta pe cetățeni să facă față unor provocări comune, creând astfel un veritabil sentiment de solidaritate și stimulând în același timp competitivitatea economiilor locale”, a declarat Corina Crețu, comisarul pentru politica regională.'
+		}).then(function(entities) {
+			assert.ok(entities);
+			assert.equal('Comisia Europeană', entities[0].name);
+		});
+	});
+
 	it('#fromConcepts', function() {
 		var concepts = Data.conceptsParser.parse(context);
 		return extractor.fromConcepts(context, concepts)
 			.then(function(entities) {
 				assert.ok(entities);
 				// console.log('entities', entities);
-				assert.equal(4, entities.length);
+				assert.equal(7, entities.length);
 				var dodon = _.find(entities, {
 					name: 'Igor Dodon'
 				});

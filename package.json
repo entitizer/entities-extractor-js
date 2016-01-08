@@ -1,6 +1,6 @@
 {
   "name": "entitizer.entities-extractor",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Entities extracting from text",
   "main": "./lib/extractor.js",
   "scripts": {
