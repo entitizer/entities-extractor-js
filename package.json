@@ -1,10 +1,26 @@
 {
   "name": "entitizer.entities-extractor",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Entities extracting from text",
-  "main": "./lib/extractor.js",
+  "private": true,
+  "main": "./lib/index.js",
+  "types": "./types/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "clean_test": "shx rm -rf test-js",
+    "clean_lib": "shx rm -rf lib",
+    "clean_types": "shx rm -rf types",
+    "build_test": "npm-run-all build_lib clean_test && tsc --project ./test --pretty",
+    "test_mocha": "mocha --opts test/default.opts test-js/**/*.spec.js",
+    "test": "npm-run-all build_test test_mocha clean_test",
+    "build_lib": "npm-run-all clean_lib clean_types tsc",
+    "tsc": "tsc",
+    "tscw": "tsc -w",
+    "preversion": "npm run tsc",
+    "postversion": "git push --follow-tags",
+    "prepublish": "npm run tsc"
+  },
+  "engines": {
+    "node": ">=4.0.0"
   },
   "repository": {
     "type": "git",
@@ -17,19 +33,17 @@
     "entities"
   ],
   "author": "Dumitru Cantea",
-  "license": "ISC",
+  "license": "PRIVATE",
   "bugs": {
     "url": "https://github.com/entitizer/entities-extractor-js/issues"
   },
   "homepage": "https://github.com/entitizer/entities-extractor-js",
   "dependencies": {
-    "bluebird": "^3.0.5",
-    "concepts-parser": "^1.0.1",
-    "entitizer.entities-storage": "^0.3.0",
-    "lodash": "^3.10.1"
+    "concepts-parser": "^1.1.1"
   },
   "devDependencies": {
-    "dotenv": "^1.2.0",
-    "mocha": "^2.3.4"
+    "@types/dotenv": "^4.0.1",
+    "@types/node": "^8.0.24",
+    "debug": "^3.0.0"
   }
 }

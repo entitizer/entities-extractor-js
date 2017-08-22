@@ -1,0 +1,2 @@
+
+export { extract } from './extractor';
