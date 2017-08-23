@@ -5,5 +5,5 @@ node_js:
   - node
 sudo: false
 
-before_script:
-  - npm install -g typescript
+before_install:
+  - npm install -g npm@4 && npm install -g npx && node -v && npm -v
