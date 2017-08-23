@@ -9,6 +9,7 @@ export type Entity = {
     cc2?: string
     type: 'L' | 'H' | 'O' | 'P' | 'E' | 'C'
     data?: PlainObject<string[]>
+    concepts?: ConceptData[]
 }
 
 export interface Repository {
@@ -69,14 +70,22 @@ function getEntityIds(keys: string[], repository: Repository) {
     return repository.entityIdsByKeys(keys);
 }
 
-export type ResultData = {
+export type ConceptData = {
+    index: number
+    value: string
+    name?: string
+    abbr?: string
+}
 
+export type ResultData = {
+    concepts: ConceptData[]
+    entities: Entity[]
 }
 
 type ConceptsData = PlainObject<Concept[]>;
 
 class Result {
-    private data: ResultData = {};
+    private data: ResultData = { concepts: [], entities: [] };
     private initialConcepts: Concept[] = [];
     private initialConceptsKeys: string[];
     private initialConceptsData: ConceptsData = {};
@@ -92,14 +101,31 @@ class Result {
     private knownIds: PlainObject<string[]> = {};
     private knownKeys: string[] = [];
     private unknownConcepts: Concept[];
+    private entities: Entity[];
     constructor(private context: { text: string, lang: string, country?: string }, private formatKey: formatKeyFunc) { }
 
     getData() {
-        return this.data;
+        const data = this.data;
+        const entities = this.entities;
+
+        data.concepts = this.unknownConcepts.map(mapConceptData);
+
+        if (!entities || !entities.length) {
+            return data;
+        }
+
+        data.entities = entities;
+
+        // const entityIdsMap = entities.reduce<PlainObject<Entity>>((r, entity) => {
+        //     r[entity.id] = entity;
+        //     return r;
+        // }, {});
+
+        return data;
     }
 
     setEntities(entities: Entity[]) {
-        
+        this.entities = entities;
     }
 
     pushEntityIds(entityIds: PlainObject<string[]>) {
@@ -139,7 +165,7 @@ class Result {
     setInitialConcepts(concepts: Concept[]) {
         this.initialConcepts = concepts;
         concepts.forEach(concept => {
-            const key = setConceptKey(concept, this.formatKey);
+            const key = setConceptKey(concept, this.formatKey, this.context.lang);
             this.initialConceptsData[key] = this.initialConceptsData[key] || [];
             this.initialConceptsData[key].push(concept);
 
@@ -167,7 +193,7 @@ class Result {
         this.splittedConcepts = this.splittedConcepts.concat(concepts);
         concepts.forEach(concept => {
             concept.set('parent', parent);
-            const key = setConceptKey(concept, this.formatKey);
+            const key = setConceptKey(concept, this.formatKey, this.context.lang);
             this.splittedConceptsData[key] = this.splittedConceptsData[key] || [];
             this.splittedConceptsData[key].push(concept);
 
@@ -175,6 +201,7 @@ class Result {
             this.allConceptsData[key].push(concept);
         });
         this.splittedConceptsKeys = Object.keys(this.splittedConceptsData);
+        this.splittedUnknownConceptsKeys = uniq(this.unknownConcepts.filter(c => !!c.get('parent')).map(c => c.get<string>('key')));
     }
 
     getSplittedConceptsKeys() {
@@ -186,10 +213,22 @@ class Result {
     }
 }
 
-function setConceptKey(concept: Concept, formatKey: formatKeyFunc): string {
+function mapConceptData(concept: Concept): ConceptData {
+    const data: ConceptData = { index: concept.index, value: concept.value };
+    if (concept.abbr) {
+        data.abbr = concept.abbr;
+    }
+    if (concept.name) {
+        data.name = concept.name;
+    }
+
+    return data;
+}
+
+function setConceptKey(concept: Concept, formatKey: formatKeyFunc, lang: string): string {
     let key = concept.get<string>('key');
     if (!key) {
-        key = formatKey(concept.name || concept.value, this.context.lang);
+        key = formatKey(concept.name || concept.value, lang);
         concept.set('key', key);
     }
 

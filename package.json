@@ -1,6 +1,6 @@
 {
   "name": "entitizer.entities-extractor",
-  "version": "1.0.0",
+  "version": "0.4.0",
   "description": "Entities extracting from text",
   "private": true,
   "main": "./lib/index.js",
@@ -43,7 +43,11 @@
   },
   "devDependencies": {
     "@types/dotenv": "^4.0.1",
+    "@types/mocha": "^2.2.42",
     "@types/node": "^8.0.24",
-    "debug": "^3.0.0"
+    "debug": "^3.0.0",
+    "mocha": "^3.5.0",
+    "npm-run-all": "^4.0.2",
+    "shx": "^0.2.2"
   }
 }
