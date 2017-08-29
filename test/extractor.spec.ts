@@ -1,5 +1,5 @@
 
-import { extract } from '../src/extractor';
+import { extract } from '../src';
 // import * as mocha from 'mocha';
 import * as assert from 'assert';
 
@@ -34,8 +34,6 @@ describe('Extractor#extract', function () {
             .then(result => {
                 console.log(result);
                 assert.ok(result);
-                assert.ok(result.concepts);
-                assert.equal(2, result.concepts.length);
                 assert.equal(10, result.concepts[0].index);
                 assert.equal('V. Filat', result.concepts[0].value);
                 // assert.equal('Pavel Filip', result.concepts[1].value);
@@ -43,7 +41,7 @@ describe('Extractor#extract', function () {
 
                 assert.ok(result.entities);
                 assert.equal(1, result.entities.length);
-                assert.equal('Pavel Filip', result.entities[0].name);
+                assert.equal('Pavel Filip', result.entities[0].entity.name);
             });
     });
 });
