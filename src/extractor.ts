@@ -2,7 +2,7 @@
 const debug = require('debug')('entities-extractor');
 import { Concept, parse as parseConcepts } from 'concepts-parser';
 import { Entity, Context, Repository, formatKeyFunc, IdentifyResult } from './types';
-import { ExtractorInner } from './extractor-inner';
+import { ExtractorContainer } from './extractor-container';
 import { identify } from './identifier';
 
 export function extract<T extends Entity>(context: Context, repository: Repository<T>, formatKey: formatKeyFunc): Promise<IdentifyResult<T>> {
@@ -15,38 +15,43 @@ export function extract<T extends Entity>(context: Context, repository: Reposito
         return Promise.reject(e);
     }
 
-    const result = new ExtractorInner<T>(context, formatKey);
+    const container = new ExtractorContainer<T>(context.lang, formatKey);
 
     if (!concepts || !concepts.length) {
         debug('Found no concepts!');
-        return Promise.resolve(identify(result.getData()));
+        return Promise.resolve(identify(container.getResult()));
     }
 
-    result.setInitialConcepts(concepts);
+    container.setRootConcepts(concepts);
 
-    return getEntityIds(result.getInitialConcepts().keys, repository)
+    return getEntityIds(container.getRootConcepts().keys, repository)
         .then(entityIds => {
-            result.addEntityIds(entityIds);
-            if (result.getUnknownCount() > 0) {
-                result.getUnknownConcepts().list.forEach(concept => {
+            debug('got 1st entity ids');
+            container.addEntityIds(entityIds);
+            const rootUnknownConcepts = container.getRootUnknownConcepts();
+            if (rootUnknownConcepts.list.length > 0) {
+                rootUnknownConcepts.list.forEach(concept => {
                     const splittedConcepts = concept.split(context.lang);
                     if (splittedConcepts && splittedConcepts.length) {
-                        result.addSplittedConcepts(concept, splittedConcepts);
+                        container.addSplittedConcepts(concept, splittedConcepts);
                     }
                 });
             }
             const tasks = [];
-            if (result.getSplittedUnknownCount() > 0) {
-                tasks.push(getEntityIds(result.getSplittedUnknownKeys(), repository).then(entityIds2 => result.addEntityIds(entityIds2)));
+            const splitUnknownConcepts = container.getSplittedUnknownConcepts();
+            if (splitUnknownConcepts.list.length > 0) {
+                tasks.push(getEntityIds(splitUnknownConcepts.keys, repository).then(entityIds2 => container.addEntityIds(entityIds2)));
             }
 
             return Promise.all(tasks)
                 .then(() => {
-                    const ids = result.getIds();
+                    debug('got second entity ids');
+                    const ids = container.getIds();
                     return repository.entitiesByIds(ids)
-                        .then(entities => result.setEntities(entities));
+                        .then(entities => container.setEntities(entities))
+                        .then(() => debug('got entities by ids'));
                 })
-                .then(() => result.getData())
+                .then(() => container.getResult())
                 .then(identify);
         });
 }

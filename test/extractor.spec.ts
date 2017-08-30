@@ -32,7 +32,7 @@ describe('Extractor#extract', function () {
 
         return extract(context, repository, formatKey)
             .then(result => {
-                console.log(result);
+                // console.log(result);
                 assert.ok(result);
                 assert.equal(10, result.concepts[0].index);
                 assert.equal('V. Filat', result.concepts[0].value);
