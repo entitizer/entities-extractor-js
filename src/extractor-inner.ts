@@ -1,4 +1,5 @@
 
+const debug = require('debug')('extractor');
 import { uniq } from './utils';
 import { PlainObject, Entity, formatKeyFunc, Concept, ExtractResult } from './types';
 
@@ -25,6 +26,9 @@ export class ExtractorInner<T extends Entity> {
             return { entities: [], concepts: this.unknownConcepts.list }
         }
 
+        debug('unknownConcepts', this.unknownConcepts.keys);
+        debug('allConcepts', this.allConcepts.list);
+
         const entityConceptMap: PlainObject<Concept[]> = this.entities.reduce<PlainObject<Concept[]>>((result, entity) => {
             result[entity.id] = result[entity.id] || [];
             Object.keys(this.entityIds).forEach(key => {
@@ -34,7 +38,7 @@ export class ExtractorInner<T extends Entity> {
             });
             return result;
         }, {});
-        
+
         const data: ExtractResult<T> = {
             entities: this.entities.map(entity => { return { entity: entity, concepts: entityConceptMap[entity.id] }; }),
             concepts: this.unknownConcepts.list
@@ -81,6 +85,7 @@ export class ExtractorInner<T extends Entity> {
     setInitialConcepts(concepts: Concept[]) {
         this.initialConcepts = { list: concepts, keys: [], map: {} };
         this.allConcepts = { list: [].concat(this.initialConcepts.list), keys: [], map: {} };
+        this.unknownConcepts = { list: [].concat(this.initialConcepts.list), keys: [], map: {} };
 
         concepts.forEach(concept => {
             const key = setConceptKey(concept, this.formatKey, this.context.lang);
@@ -88,10 +93,12 @@ export class ExtractorInner<T extends Entity> {
             this.initialConcepts.map[key].push(concept);
 
             this.allConcepts.map[key] = [].concat(this.initialConcepts.map[key]);
+            this.unknownConcepts.map[key] = [].concat(this.initialConcepts.map[key]);
         });
 
         this.initialConcepts.keys = Object.keys(this.initialConcepts.map);
         this.allConcepts.keys = [].concat(this.initialConcepts.keys);
+        this.unknownConcepts.keys = [].concat(this.initialConcepts.keys);
     }
 
     getInitialConcepts() {
