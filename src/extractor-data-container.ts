@@ -1,5 +1,5 @@
 
-const debug = require('debug')('entities-extractor');
+const debug = require('debug')('entitizer:extractor');
 
 import { Entity, Concept, formatKeyFunc, PlainObject, Context } from './types';
 import { uniq, arrayDiff } from './utils';
@@ -41,29 +41,29 @@ export class ExtractorDataContainer<T extends Entity> extends BaseDataContainer<
     }
 
     getIds(): string[] {
-
-        this.replaceKnownAbbreviations();
-        // replace short concepts with longer...
-
+        this.replaceShortConcepts();
         return super.getIds();
     }
 
-    private replaceKnownAbbreviations() {
-        const abbrKeys = this.getAbbrKeys();
-        if (Object.keys(abbrKeys).length) {
-            Object.keys(this.data.ids).forEach(key => {
-                const ids = this.data.ids[key];
-                if (ids && ids.length) {
-                    const concepts = this.getConcepts(key);
-                    if (concepts[0].isAbbr && abbrKeys[concepts[0].value]) {
-                        const abbrKey = abbrKeys[concepts[0].value];
-                        if (this.data.ids[abbrKey].length === 1) {
-                            const conceptWithAbbrId = this.data.ids[abbrKey][0];
-                            // const oldIds = this.data.ids[key];
-                            this.data.ids[key] = [conceptWithAbbrId];
-                            this.data.idKeys[conceptWithAbbrId].push(key);
-                            ids.forEach(id => {
-                                const index = this.data.idKeys[id].indexOf(key);
+    private replaceShortConcepts() {
+        const uniqueLongConceptsWithOneId = this.getKeys().map(key => this.getConcepts(key)[0])
+            .filter(c => c.countWords > 1 && this.data.ids[c.key] && this.data.ids[c.key].length === 1)
+            .sort((a, b) => b.countWords - a.countWords);
+
+        uniqueLongConceptsWithOneId.forEach(longConceptWithOneId => {
+            const conceptShortNames = formatShortNames(longConceptWithOneId);
+            if (conceptShortNames.length) {
+                const knownId = this.data.ids[longConceptWithOneId.key][0];
+                conceptShortNames.forEach(sName => {
+                    debug('replacing short name: ' + sName);
+                    const sNameKey = this.formatKey(sName, this.lang);
+                    // key exists
+                    if (this.getConcepts(sNameKey)) {
+                        const sNameKeyIds = this.data.ids[sNameKey];
+                        this.data.ids[sNameKey] = [knownId];
+                        if (sNameKeyIds) {
+                            sNameKeyIds.forEach(id => {
+                                const index = this.data.idKeys[id].indexOf(sNameKey);
                                 if (index > -1) {
                                     // remove key for this id
                                     this.data.idKeys[id].splice(index, 1);
@@ -74,19 +74,9 @@ export class ExtractorDataContainer<T extends Entity> extends BaseDataContainer<
                             });
                         }
                     }
-                }
-            });
-        }
-    }
-
-    private getAbbrKeys(): PlainObject<string> {
-        return this.getKeys().reduce<PlainObject<string>>((data, key) => {
-            const c = this.getConcepts(key).find(c => !!c.abbr);
-            if (c && !data[c.abbr]) {
-                data[c.abbr] = key;
+                });
             }
-            return data;
-        }, {});
+        });
     }
 
     getUnknownConcepts(): string[] {
@@ -123,4 +113,36 @@ export class ExtractorDataContainer<T extends Entity> extends BaseDataContainer<
             this.addConcept(concept);
         });
     }
+}
+
+
+function formatShortNames(concept: Concept): string[] {
+    const names: string[] = concept.abbr ? [concept.abbr] : [];
+    const name = concept.name || concept.value;
+
+    // contains digits
+    if (/\d/.test(name)) {
+        return names;
+    }
+    const words = name.split(/[\s]+/g).filter(w => w && w[0] === w[0].toUpperCase());
+    if (words.length < 2) {
+        return names;
+    }
+    // create abbreviation
+    if (!concept.abbr && words.length > 2) {
+        const abbr = words.map(w => w[0]).join('');
+        names.push(abbr);
+    }
+
+    // format sort names: Vlad Filat -> V. Filat, V.Filat, V Filat
+    if (words.length === concept.countWords && words.length === 2) {
+        // V. Filat
+        names.push(words[0][0] + '. ' + words[1]);
+        // V Filat
+        names.push(words[0][0] + ' ' + words[1]);
+        // V.Filat
+        names.push(words[0][0] + '.' + words[1]);
+    }
+
+    return names;
 }

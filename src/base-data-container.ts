@@ -10,7 +10,7 @@ export class BaseDataContainer<T extends Entity> {
         return this.data.context.lang;
     }
 
-    constructor(protected data: ExtractorData<T>, private formatKey: formatKeyFunc) {
+    constructor(protected data: ExtractorData<T>, protected formatKey: formatKeyFunc) {
         if (!context) {
             throw new Error(`Invalid 'context' argument`);
         }

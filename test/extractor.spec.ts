@@ -24,12 +24,22 @@ class FilipRepository {
 class FMIRepository {
     entitiesByIds(ids: string[]) {
         const data = [];
-        if (~ids.indexOf('ID1')) {
-            data.push({ id: 'ID1', name: 'Fondul Monetar International', type: 'O' });
-        }
-        if (~ids.indexOf('ID2')) {
-            data.push({ id: 'ID2', name: 'False FMI', type: 'O' });
-        }
+        ids.forEach(id => {
+            switch (id) {
+                case 'ID1':
+                    data.push({ id: 'ID1', name: 'Fondul Monetar International', type: 'O' });
+                    break;
+                case 'ID2':
+                    data.push({ id: 'ID2', name: 'False FMI', type: 'O' });
+                    break;
+                case 'ID3':
+                    data.push({ id: 'ID3', name: 'Pavel Filip', type: 'H' });
+                    break;
+                case 'F3':
+                    data.push({ id: 'F3', name: 'P. Filip', type: 'H' });
+                    break;
+            }
+        });
         return Promise.resolve(data);
     }
     entityIdsByKeys(keys: string[]) {
@@ -39,6 +49,12 @@ class FMIRepository {
         }
         if (~keys.indexOf('ro_FMI')) {
             data['ro_FMI'] = ['ID2'];
+        }
+        if (~keys.indexOf('ro_Pavel Filip')) {
+            data['ro_Pavel Filip'] = ['ID3'];
+        }
+        if (~keys.indexOf('ro_P. Filip')) {
+            data['ro_P. Filip'] = ['F3', 'F4'];
         }
         return Promise.resolve(data);
     }
@@ -69,13 +85,13 @@ describe('Extractor#extract', function () {
             });
     });
 
-    it('should find concepts', function () {
-        const context = { lang: 'ro', text: 'De astăzi V. Filat cu Premierul Pavel Filip sunt colegi de cameră. Fondul Monetar International (FMI) s-a spart. FMI ne cere.' };
+    it('should replace short concepts', function () {
+        const context = { lang: 'ro', text: 'De astăzi V. Filat cu Premierul Pavel Filip sunt colegi de cameră. Fondul Monetar International (FMI) s-a spart. FMI ne cere. P. Filip este premier.' };
         const repository = new FMIRepository();
 
         return extract(context, repository, formatKey)
             .then(result => {
-                // console.log(result);
+                console.log(result);
                 assert.ok(result);
                 const concepts = result.keys.reduce((list: Concept[], key) => list.concat(result.concepts[key]), []);
                 assert.equal(10, concepts[0].index);
@@ -84,8 +100,9 @@ describe('Extractor#extract', function () {
                 assert.equal('FMI', concepts[2].abbr);
 
                 assert.ok(result.entities);
-                assert.equal(1, result.entities.length);
-                assert.equal('Fondul Monetar International', result.entities[0].name);
+                assert.equal(2, result.entities.length);
+                // assert.equal('Pavel Filip', result.entities[0].name);
+                // assert.equal('Fondul Monetar International', result.entities[1].name);
             });
     });
 });
