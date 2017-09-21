@@ -15,6 +15,7 @@ export class ExtractorContainer<T extends Entity> {
     private allConcepts: DataContainer<Concept> = { list: [], keys: [], map: {} };
     private entityIds: PlainObject<string[]> = {};
     private result: ExtractResult<T> = { entities: [], concepts: [] };
+    // private extractorData: ExtractorData<T> = { concepts: {}, ids: {} }
 
     constructor(private lang: string, private formatKey: formatKeyFunc) {
         if (typeof lang !== 'string') {
@@ -74,7 +75,36 @@ export class ExtractorContainer<T extends Entity> {
     }
 
     getIds() {
-        return uniq(Object.keys(this.entityIds).reduce<string[]>((list, key) => list.concat(this.entityIds[key]), []));
+        const keys = Object.keys(this.entityIds);
+        // const keysByAbbr: PlainObject<string[]> = {};
+        // const uniqueKeys = keys.filter(key => {
+        //     const concepts = this.getConceptsByKey(key);
+        //     const conceptWithAbbr = concepts.find(concept => !!concept.abbr);
+        //     if (conceptWithAbbr) {
+        //         keysByAbbr[conceptWithAbbr.abbr] = keysByAbbr[conceptWithAbbr.abbr] || [];
+        //         keysByAbbr[conceptWithAbbr.abbr].push(key);
+        //     }
+        //     return this.entityIds[key].length === 1;
+        // });
+        // const uniqueKeysIsNotAbbr = uniqueKeys.filter(key => !this.getConceptsByKey(key)[0].isAbbr);
+
+        // keys.forEach(key => {
+        //     const ids = this.entityIds[key];
+        //     const concepts = this.getConceptsByKey(key);
+        //     if (concepts[0].isAbbr) {
+        //         const abbrKeys = keysByAbbr[concepts[0].value];
+        //         if (abbrKeys && abbrKeys.length) {
+        //             for (let i = 0; i < abbrKeys.length; i++) {
+        //                 const aKey = abbrKeys[i];
+        //                 if (~uniqueKeys.indexOf(aKey)) {
+
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+
+        return uniq(keys.reduce<string[]>((list, key) => list.concat(this.entityIds[key]), []));
     }
 
     getRootUnknownConcepts() {

@@ -1,7 +1,25 @@
 
-import { Concept, Context } from 'concepts-parser';
+import { Concept as ParserConcept, Context } from 'concepts-parser';
+export { Context };
 
-export { Context, Concept };
+export class Concept extends ParserConcept {
+    constructor(concept: ParserConcept) {
+        super(concept.toJSON());
+    }
+    get key() {
+        return this.get<string>('key');
+    }
+    set key(key: string) {
+        this.set<string>('key', key);
+    }
+
+    get parent() {
+        return this.get<Concept>('parent');
+    }
+    set parent(parent: Concept) {
+        this.set<Concept>('parent', parent);
+    }
+}
 
 export type PlainObject<T> = {
     [index: string]: T
@@ -42,4 +60,12 @@ export interface Repository<T extends Entity> {
 
 export interface formatKeyFunc {
     (name: string, lang: string): string
+}
+
+export type ExtractorData<T extends Entity> = {
+    concepts: PlainObject<Concept[]>
+    ids: PlainObject<string[]>
+    entities: T[]
+    idKeys: PlainObject<string[]>
+    keys?: string[]
 }

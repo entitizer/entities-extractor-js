@@ -1,6 +1,6 @@
 
 import { ExtractorContainer } from '../src/extractor-container';
-import { Entity } from '../src/types';
+import { Entity, Concept } from '../src/types';
 import * as assert from 'assert';
 import { parse } from 'concepts-parser';
 
@@ -30,7 +30,7 @@ describe('ExtractorContainer', function () {
         const concepts = parse(context);
         assert.equal(concepts.length, 4, 'parsed concepts=4');
 
-        container.setRootConcepts(concepts);
+        container.setRootConcepts(concepts.map(c => new Concept(c)));
 
         const rootConcepts = container.getRootConcepts();
 
@@ -73,7 +73,7 @@ describe('ExtractorContainer', function () {
         const concepts = parse(context);
         assert.equal(concepts.length, 4, 'parsed concepts=4');
 
-        container.setRootConcepts(concepts);
+        container.setRootConcepts(concepts.map(c => new Concept(c)));
 
         container.addEntityIds({ 'ro_Moldova': ['MD'] });
 
@@ -111,10 +111,10 @@ describe('ExtractorContainer', function () {
         const concepts = parse(context);
         assert.equal(concepts.length, 4, 'parsed concepts=4');
 
-        container.setRootConcepts(concepts);
+        container.setRootConcepts(concepts.map(c => new Concept(c)));
         container.addEntityIds({ 'ro_Moldova': ['MD'], 'ro_Europei': ['EU'] });
-        const romaniaMare = concepts[2];
-        container.addSplittedConcepts(romaniaMare, romaniaMare.split(context.lang));
+        const romaniaMare = new Concept(concepts[2]);
+        container.addSplittedConcepts(romaniaMare, romaniaMare.split(context.lang).map(c => new Concept(c)));
 
         const splittedConcepts = container.getSplittedConcepts();
         assert.equal(splittedConcepts.list.length, 2, '2 splitted concepts');
@@ -132,7 +132,7 @@ describe('ExtractorContainer', function () {
         const rootUnknowConcepts = container.getRootUnknownConcepts();
 
         const result = container.getResult();
-        console.log(result.concepts)
+        // console.log(result.concepts)
 
         assert.equal(result.concepts.length, rootUnknowConcepts.list.length, 'result concepts = root unknown concepts');
         assert.equal(result.concepts.length, 2, 'result concepts = 2');
@@ -145,10 +145,10 @@ describe('ExtractorContainer', function () {
         const concepts = parse(context);
         assert.equal(concepts.length, 4, 'parsed concepts=4');
 
-        container.setRootConcepts(concepts);
+        container.setRootConcepts(concepts.map(c => new Concept(c)));
         container.addEntityIds({ 'ro_Moldova': ['MD'], 'ro_România': ['RO'] });
-        const romaniaMare = concepts[2];
-        container.addSplittedConcepts(romaniaMare, romaniaMare.split(context.lang));
+        const romaniaMare = new Concept(concepts[2]);
+        container.addSplittedConcepts(romaniaMare, romaniaMare.split(context.lang).map(c => new Concept(c)));
 
         const splittedConcepts = container.getSplittedConcepts();
         assert.equal(splittedConcepts.list.length, 2, '2 splitted concepts');
