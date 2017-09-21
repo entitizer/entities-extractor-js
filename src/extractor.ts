@@ -18,7 +18,7 @@ export function extract<T extends Entity>(context: Context, repository: Reposito
         return
     }
 
-    const container = new ExtractorDataContainer<T>(concepts.map(c => new Concept(c)), formatKey, context.lang);
+    const container = new ExtractorDataContainer<T>(concepts.map(c => new Concept(c)), formatKey, context);
 
     if (!concepts.length) {
         debug('Found no concepts!');

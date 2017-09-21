@@ -6,9 +6,13 @@ import { uniq } from './utils';
 
 export class BaseDataContainer<T extends Entity> {
 
-    constructor(protected data: ExtractorData<T>, private formatKey: formatKeyFunc, protected lang: string) {
-        if (typeof lang !== 'string') {
-            throw new Error(`Invalid 'lang' argument`);
+    get lang() {
+        return this.data.context.lang;
+    }
+
+    constructor(protected data: ExtractorData<T>, private formatKey: formatKeyFunc) {
+        if (!context) {
+            throw new Error(`Invalid 'context' argument`);
         }
         if (typeof formatKey !== 'function') {
             throw new Error(`Invalid 'formatKey' argument`);

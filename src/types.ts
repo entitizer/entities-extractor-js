@@ -63,6 +63,7 @@ export interface formatKeyFunc {
 }
 
 export type ExtractorData<T extends Entity> = {
+    context: Context
     concepts: PlainObject<Concept[]>
     ids: PlainObject<string[]>
     entities: T[]
