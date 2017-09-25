@@ -1,6 +1,6 @@
 
 import { extract } from '../src/extractor';
-import { Concept } from '../src/types';
+import { Concept, Entity } from '../src/types';
 // import * as mocha from 'mocha';
 import * as assert from 'assert';
 
@@ -69,19 +69,18 @@ describe('Extractor#extract', function () {
     it('should find concepts', function () {
         const context = { lang: 'ro', text: 'De astăzi V. Filat cu Premierul Pavel Filip sunt colegi de cameră. Fondul Monetar International (FMI) s-a spart.' };
         const repository = new FilipRepository();
-        return extract(context, repository, formatKey)
+        return extract<Entity>(context, repository, formatKey)
             .then(result => {
-                // console.log(result);
+                // console.log(result.concepts);
                 assert.ok(result);
-                const concepts = result.keys.reduce((list: Concept[], key) => list.concat(result.concepts[key]), []);
+                const concepts = result.concepts;
                 assert.equal(10, concepts[0].index);
                 assert.equal('V. Filat', concepts[0].value);
-                assert.equal('Pavel Filip', concepts[1].value);
-                assert.equal('FMI', concepts[2].abbr);
+                assert.equal('FMI', concepts[1].abbr);
 
                 assert.ok(result.entities);
                 assert.equal(1, result.entities.length);
-                assert.equal('Pavel Filip', result.entities[0].name);
+                assert.equal('Pavel Filip', result.entities[0].entity.name);
             });
     });
 
@@ -91,18 +90,16 @@ describe('Extractor#extract', function () {
 
         return extract(context, repository, formatKey)
             .then(result => {
-                console.log(result);
+                // console.log(result);
                 assert.ok(result);
-                const concepts = result.keys.reduce((list: Concept[], key) => list.concat(result.concepts[key]), []);
+                const concepts = result.concepts;
                 assert.equal(10, concepts[0].index);
                 assert.equal('V. Filat', concepts[0].value);
-                assert.equal('Pavel Filip', concepts[1].value);
-                assert.equal('FMI', concepts[2].abbr);
 
                 assert.ok(result.entities);
                 assert.equal(2, result.entities.length);
-                // assert.equal('Pavel Filip', result.entities[0].name);
-                // assert.equal('Fondul Monetar International', result.entities[1].name);
+                assert.equal('Pavel Filip', result.entities[0].entity.name);
+                assert.equal('Fondul Monetar International', result.entities[1].entity.name);
             });
     });
 });

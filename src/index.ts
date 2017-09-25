@@ -1,4 +1,3 @@
 
 export { extract } from './extractor';
-export { identify } from './identifier';
-export { Repository, ConceptData as Concept } from './types';
+export { Repository, ConceptData as Concept, ExtractorResult, Entity } from './types';

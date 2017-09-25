@@ -11,7 +11,7 @@
       "moduleResolution": "node",
       "declaration": true,
       "declarationDir": "types",
-      "noUnusedLocals": false,
+      "noUnusedLocals": true,
       "noUnusedParameters": true,
       "allowJs": false
   },
