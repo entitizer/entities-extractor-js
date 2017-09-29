@@ -16,15 +16,17 @@ export function extract<T extends Entity>(context: Context, repository: Reposito
         return Promise.reject(e);
     }
 
+    const emptyResult: ExtractorResult<T> = { concepts: [], entities: [] };
+
     if (concepts.length === 0) {
-        return
+        return Promise.resolve(emptyResult);
     }
 
     const container = new DataContainer(concepts.map(c => new Concept(c)), context, formatKey);
 
     if (!concepts.length) {
         debug('Found no concepts!');
-        return Promise.resolve(formatExtractorResult<T>(container));
+        return Promise.resolve(emptyResult);
     }
 
     return getEntityIds(container.getConceptKeys(), repository)
