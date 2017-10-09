@@ -1,6 +1,6 @@
 {
   "name": "entitizer.entities-extractor",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Entities extracting from text",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",

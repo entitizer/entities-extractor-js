@@ -125,7 +125,7 @@ export class DataContainer {
             const concept = this.getConceptsByKey(key)[0];
             if (concept && concept.isAbbr) {
                 const fullConcept = this.getConceptByAbbr(concept.value);
-                if (!fullConcept.entityIds) {
+                if (fullConcept && !fullConcept.entityIds) {
                     this.setConceptEntityIds(fullConcept.key, concept.entityIds);
                 }
             }
