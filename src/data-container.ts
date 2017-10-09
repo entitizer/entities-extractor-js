@@ -54,6 +54,10 @@ export class DataContainer {
         return uniq(this.concepts.reduce<string[]>((list, concept) => list.concat(concept.entityIds || []), []));
     }
 
+    getEntityIdsByKey(key: string): string[] {
+        return this.entityIds[key];
+    }
+
     getSplittedConceptsKeys() {
         return uniq(this.getSplittedConcepts().map(c => c.key));
     }
@@ -75,11 +79,6 @@ export class DataContainer {
     }
 
     addConcept(concept: Concept, parent?: Concept) {
-        if (parent) {
-            concept.parent = parent;
-            parent.childs = parent.childs || [];
-            parent.childs.push(concept);
-        }
         this.setConceptKey(concept);
         this.addConceptsByKey(concept);
         if (this.conceptKeys.indexOf(concept.key) < 0) {
@@ -88,6 +87,8 @@ export class DataContainer {
 
         if (parent) {
             concept.parent = parent;
+            parent.childs = parent.childs || [];
+            parent.childs.push(concept);
             const parentIndex = this.concepts.findIndex(c => c === parent);
             // insert new concept after its parent
             this.concepts.splice(parentIndex, 0, concept);
@@ -115,15 +116,17 @@ export class DataContainer {
         keys.forEach(key => {
             const ids = entityIds[key];
             if (ids && ids.length) {
-                this.getConceptsByKey(key).forEach(concept => {
-                    concept.entityIds = uniq((concept.entityIds || []).concat(ids));
-                    debug(`set concept(${concept.key})'s entityIds=${concept.entityIds}`);
-                });
-                this.entityIds[key] = uniq((this.entityIds[key] || []).concat(ids));
+                this.setConceptEntityIds(key, uniq((this.entityIds[key] || []).concat(ids)));
             } else {
                 debug(`NO ids for key=${key}`);
             }
         });
+    }
+
+    setConceptEntityIds(key: string, entityIds: string[]) {
+        const concepts = this.getConceptsByKey(key);
+        concepts.forEach(concept => concept.entityIds = entityIds);
+        this.entityIds[key] = entityIds;
     }
 
     setEntities(entities: Entity[]) {

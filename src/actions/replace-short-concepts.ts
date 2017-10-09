@@ -16,13 +16,8 @@ export function replaceShortConcepts(data: DataContainer) {
             conceptShortNames.forEach(sName => {
                 debug(`replacing short name: ${sName}`);
                 const sNameKey = data.formatConceptKey(sName);
-                const shortConcepts = data.getConceptsByKey(sNameKey);
-                if (shortConcepts && shortConcepts.length) {
-                    shortConcepts.forEach(shortConcept => {
-                        debug(`Replace short concept entity ids: ${shortConcept.entityIds} with [${uniqueEntityId}]`);
-                        shortConcept.entityIds = [uniqueEntityId];
-                    });
-                }
+                debug(`Replace short concept entity ids: ${sNameKey} with [${uniqueEntityId}]`);
+                data.setConceptEntityIds(sNameKey, [uniqueEntityId]);
             });
         }
     });
