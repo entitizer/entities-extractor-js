@@ -121,6 +121,15 @@ export class DataContainer {
                 debug(`NO ids for key=${key}`);
             }
         });
+        keys.forEach(key => {
+            const concept = this.getConceptsByKey(key)[0];
+            if (concept && concept.isAbbr) {
+                const fullConcept = this.getConceptByAbbr(concept.value);
+                if (!fullConcept.entityIds) {
+                    this.setConceptEntityIds(fullConcept.key, concept.entityIds);
+                }
+            }
+        });
     }
 
     setConceptEntityIds(key: string, entityIds: string[]) {
@@ -136,6 +145,10 @@ export class DataContainer {
 
     getEntity(id: string): Entity {
         return this.entitiesById[id];
+    }
+
+    getConceptByAbbr(abbr: string): Concept {
+        return this.getConceptKeys().map(key => this.getConceptsByKey(key)[0]).find(concept => concept.abbr === abbr);
     }
 
     //***** PROTECTED

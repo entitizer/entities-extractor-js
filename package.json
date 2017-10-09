@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/entitizer/entities-extractor-js",
   "dependencies": {
-    "concepts-parser": "^1.1.1"
+    "concepts-parser": "^1.1.2"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",
