@@ -6,6 +6,7 @@ export class Concept extends ParserConcept {
     entityIds: string[]
     parent: Concept
     key: string
+    childs: Concept[]
 
     constructor(concept: ParserConcept) {
         super(concept.toJSON());

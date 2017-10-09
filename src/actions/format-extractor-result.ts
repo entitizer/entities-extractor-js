@@ -3,11 +3,13 @@ const debug = require('debug')('entitizer:extractor');
 
 import { PlainObject, Entity, ExtractorResult, Concept, ConceptData, EntityData } from '../types';
 import { DataContainer } from '../data-container';
+import { sortEntitiesByRank } from './sort-entities-by-rank';
 
 export function formatExtractorResult<T extends Entity>(data: DataContainer): ExtractorResult<T> {
     const result: ExtractorResult<T> = { entities: [], concepts: [] };
-
     const entitiesMap: PlainObject<EntityData<T>> = {};
+
+    sortEntitiesByRank(data);
 
     data.getConcepts().forEach(concept => {
         if (concept.entityIds && concept.entityIds.length) {
@@ -25,7 +27,9 @@ export function formatExtractorResult<T extends Entity>(data: DataContainer): Ex
             }
             entityData.concepts.push(convertConcept(concept));
         } else if (!concept.parent) {
-            result.concepts.push(convertConcept(concept));
+            if (!concept.childs || !concept.childs.find(c => c.entityIds && c.entityIds.length > 0)) {
+                result.concepts.push(convertConcept(concept));
+            }
         }
     });
 

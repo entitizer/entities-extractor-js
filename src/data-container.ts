@@ -77,6 +77,8 @@ export class DataContainer {
     addConcept(concept: Concept, parent?: Concept) {
         if (parent) {
             concept.parent = parent;
+            parent.childs = parent.childs || [];
+            parent.childs.push(concept);
         }
         this.setConceptKey(concept);
         this.addConceptsByKey(concept);
